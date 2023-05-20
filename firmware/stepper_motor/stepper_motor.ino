@@ -56,7 +56,7 @@ bool CLICKED = false;
 int currentPosition = 0;
 
 void setup() {
-  myStepper.setSpeed(15);
+  myStepper.setSpeed(10);
   pinMode(interruptPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
 }
@@ -89,21 +89,55 @@ void loop() {
     homeStepper();
   }
   delay(5000);
-  goToLetter("a");
+  goToLetter("i");
   delay(1000);
-  goToLetter("l");
+  goToLetter("n");
   delay(1000);
-  goToLetter("p");
-  delay(1000);
-  goToLetter("h");
-  delay(1000);
-  goToLetter("a");
-  delay(1000);
-  goToLetter("b");
+  goToLetter("t");
   delay(1000);
   goToLetter("e");
   delay(1000);
+  goToLetter("r");
+  delay(1000);
+  goToLetter("l");
+  delay(1000);
+  goToLetter("o");
+  delay(1000);
+  goToLetter("p");
+  delay(1000);
+  goToLetter("e");
+  delay(1000);
+  goToLetter("r");
+  delay(1000);
+  goToLetter(" ");
+  delay(1000);
+  goToLetter("c");
+  delay(1000);
+  goToLetter("r");
+  delay(1000);
+  goToLetter("e");
+  delay(1000);
+  goToLetter("a");
+  delay(1000);
   goToLetter("t");
+  delay(1000);
+  goToLetter("i");
+  delay(1000);
+  goToLetter("v");
+  delay(1000);
+  goToLetter("e");
+  delay(1000);
+  goToLetter(" ");
+  delay(1000);
+  goToLetter("b");
+  delay(1000);
+  goToLetter("r");
+  delay(1000);
+  goToLetter("e");
+  delay(1000);
+  goToLetter("h");
+  delay(1000);
+  goToLetter("!");
   delay(1000);
 }
 
