@@ -44,25 +44,50 @@ String letters [] = {
   "4",
 };
 
-// Defines the number of steps per rotation
+// Constants
 const int stepsPerRevolution = 2038;
+const int stepsPerLetter = 51;
+const byte interruptPin = 2;
+
+// Variables
+bool IS_CALIBRATED = false;
+int currentPosition = 0;
+bool LED_IS_ON = false;
 
 // Creates an instance of stepper class
 // Pins entered in sequence IN1-IN3-IN2-IN4 for proper step sequence
 Stepper myStepper = Stepper(stepsPerRevolution, 8, 10, 9, 11);
-const byte interruptPin = 2;
-int stepsPerLetter = 51;
-bool CLICKED = false;
-int currentPosition = 0;
+
 
 void setup() {
-  myStepper.setSpeed(10);
+  myStepper.setSpeed(15);
   pinMode(interruptPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), limit_switch_activated, CHANGE);
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void limit_switch_activated() {
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 1000ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 1000)
+  {
+    IS_CALIBRATED = true;
+    currentPosition = 0;
+    if(LED_IS_ON){
+      digitalWrite(LED_BUILTIN, LOW);
+      LED_IS_ON = false;
+    } else {
+      digitalWrite(LED_BUILTIN, HIGH);
+      LED_IS_ON = true;
+    }
+  }
+  last_interrupt_time = interrupt_time;
 }
 
 void homeStepper(){
   moveStepper(stepsPerRevolution * 1.5);
+  goToLetter(" ");
 }
 
 void moveStepper(int steps) {
@@ -85,7 +110,7 @@ void goToLetter(String letter){
 }
 
 void loop() {
-  if(!CLICKED){
+  if(!IS_CALIBRATED){
     homeStepper();
   }
   delay(5000);
@@ -140,58 +165,3 @@ void loop() {
   goToLetter("!");
   delay(1000);
 }
-
-void blink() {
-  static unsigned long last_interrupt_time = 0;
-  unsigned long interrupt_time = millis();
-  // If interrupts come faster than 200ms, assume it's a bounce and ignore
-  if (interrupt_time - last_interrupt_time > 1000)
-  {
-    CLICKED = true;
-    currentPosition = 0;
-  }
-  last_interrupt_time = interrupt_time;
-}
-
-/*
-   3
-   4
-   5
-   6
-   7
-   8
-   9
-   0
-   ?
-   !
-   .
-
-   a
-   b
-   c
-   d
-   e
-   f
-   g
-   h
-   i
-   j
-   k
-   l
-   m
-   n
-   o
-   p
-   q
-   r
-   s
-   t
-   u
-   v
-   w
-   x
-   y
-   z
-   1
-   2
-*/
