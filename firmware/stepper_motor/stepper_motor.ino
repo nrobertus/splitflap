@@ -48,7 +48,7 @@ String letters [] = {
 const int stepsPerRevolution = 2038;
 const int stepsPerLetter = 51;
 const byte interruptPin = 7;
-const String message = "the quick brown fox jumps over the lazy dog.";
+const String message = "somebody once told me the world is gonna roll me. i aint the sharpest tool in the shed. she was looking kinda dumb with her finger and her thumb in the shape of an l on her forehead.";
 
 
 // Variables
