@@ -3,7 +3,9 @@ A modular splitflap display system
 
 ## Project Goals
 I wanted to create a splitflap display that used primarily 3D-printed parts and minimal third-party hardware. Given the increased availability of multi-material 3D-printing solutions, the overwhelming majority of parts for these splitflap display modules can be manufactured at home with minimal additional work beyond the printing itself. 
+
 Beyond that, I wanted to use off-the-shelf electronics that were cheap and easy to source from both Amazon and AliExpress. This allows most people to be able to build these at home, get fast shipping through Amazon if building a sign at low scale, and low pricing at large scale through AliExpress if building a larger display. 
+
 In the future a custom PCB would be ideal, but for now, the time it takes to hand-solder the components is a small fraction of the time it takes to print them, so the production timeline bottleneck will not be a lack of custom PCB unless you have a printer farm.
 
 ## Design Considerations
