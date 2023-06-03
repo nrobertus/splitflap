@@ -1,5 +1,6 @@
 //Includes the Arduino Stepper Library
 #include <Stepper.h>
+#include "PinChangeInterrupt.h"
 
 String letters [] = {
   "3",
@@ -45,27 +46,23 @@ String letters [] = {
 };
 
 // Constants
-const int stepsPerRevolution = 2038;
-const int stepsPerLetter = 51;
-const byte interruptPin = 7;
-const String message = "somebody once told me the world is gonna roll me. i aint the sharpest tool in the shed. she was looking kinda dumb with her finger and her thumb in the shape of an l on her forehead.6";
+const String message = "h!";
 
 
 // Variables
 bool IS_CALIBRATED = false;
 int currentPosition = 3000;
-bool LED_IS_ON = false;
 
 // Creates an instance of stepper class
 // Pins entered in sequence IN1-IN3-IN2-IN4 for proper step sequence
-Stepper myStepper = Stepper(stepsPerRevolution, 18, 20, 19, 21);
+Stepper myStepper = Stepper(2038, 18, 20, 19, 21);
 
 
 void setup() {
   Serial.begin(9600);
   myStepper.setSpeed(15);
-  pinMode(interruptPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), limit_switch_activated, CHANGE);
+  pinMode(7, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(7), limit_switch_activated, CHANGE);
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
@@ -78,13 +75,6 @@ void limit_switch_activated() {
     Serial.println("INTERRUPT");
     IS_CALIBRATED = true;
     currentPosition = 0;
-    if (LED_IS_ON) {
-      digitalWrite(LED_BUILTIN, LOW);
-      LED_IS_ON = false;
-    } else {
-      digitalWrite(LED_BUILTIN, HIGH);
-      LED_IS_ON = true;
-    }
   }
   last_interrupt_time = interrupt_time;
 }
@@ -111,7 +101,7 @@ void findPosition(int steps) {
 void goToLetter(String letter) {
   for (int x = 0; x < sizeof(letters); x++) {
     if (letters[x] == letter) {
-      findPosition(x * stepsPerLetter);
+      findPosition(x * 51);
     }
   }
 }
