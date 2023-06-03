@@ -23,23 +23,15 @@ ezButton button(LIMIT_SWITCH_PIN);
 SoftwareSerial mySerial (rxPin, txPin); 
 
 void setup() {
-  mySerial.begin(9600);
   pinMode(LIMIT_SWITCH_PIN, INPUT_PULLUP);
+  pinMode(rxPin, INPUT);
+  pinMode(txPin, OUTPUT);
   myStepper.setSpeed(15);
   button.setDebounceTime(50);
+  mySerial.begin(9600);
 }
 
 void loop() {
-  if(mySerial.available())
-  {
-    String incomingMessage = mySerial.readString();
-    int position = incomingMessage.substring(0, 2).toInt();
-    if(position > -1 && position < 41){
-      // Check if position is valid
-      TARGET_POSITION = position * STEPS_PER_LETTER;
-    }
-    mySerial.print(incomingMessage.substring(2, sizeof(incomingMessage)));
-  }
   button.loop();
   if(button.isPressed()){
     CURRENT_POSITION = 0;
@@ -50,12 +42,23 @@ void loop() {
   if(CURRENT_POSITION != TARGET_POSITION){
     CURRENT_POSITION += 1;
     myStepper.step(1);
-    delay(4);
+    delay(5);
     if(CURRENT_POSITION == TARGET_POSITION){  
       digitalWrite(STEPPER_PIN_1, LOW);
       digitalWrite(STEPPER_PIN_2, LOW);
       digitalWrite(STEPPER_PIN_3, LOW);
       digitalWrite(STEPPER_PIN_4, LOW);
+    }
+  } else {
+    if(mySerial.available())
+    {
+      String incomingMessage = mySerial.readString();
+      int position = incomingMessage.substring(0, 2).toInt();
+      if(position > -1 && position < 41){
+        // Check if position is valid
+        TARGET_POSITION = position * STEPS_PER_LETTER;
+      }
+      mySerial.print(incomingMessage.substring(2, sizeof(incomingMessage)));
     }
   }
 }
