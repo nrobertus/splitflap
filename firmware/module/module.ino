@@ -1,6 +1,7 @@
-//Includes the Arduino Stepper Library
+//Includes the Arduino Stepper Library and Software Serial
 #include <Stepper.h>
-#include "PinChangeInterrupt.h"
+#include <SoftwareSerial.h>
+
 
 String letters [] = {
   "3",
@@ -45,24 +46,38 @@ String letters [] = {
   "4",
 };
 
+
+#define INTERRUPT_PIN 2
+#define SERIAL_RX 3
+#define SERIAL_TX 4
+#define STEPPER_PIN_1 8
+#define STEPPER_PIN_2 9
+#define STEPPER_PIN_3 10
+#define STEPPER_PIN_4 11
+
 // Constants
 const String message = "h!";
-
+const int STEPS_PER_REVOLUTION = 2038;
+const int STEPS_PER_LETTER = 51;
+const int STEPS_OFFSET = 0;
 
 // Variables
 bool IS_CALIBRATED = false;
 int currentPosition = 3000;
+String serialInput = "";
 
 // Creates an instance of stepper class
 // Pins entered in sequence IN1-IN3-IN2-IN4 for proper step sequence
-Stepper myStepper = Stepper(2038, 18, 20, 19, 21);
+Stepper myStepper = Stepper(STEPS_PER_REVOLUTION, STEPPER_PIN_1, STEPPER_PIN_3, STEPPER_PIN_2, STEPPER_PIN_4);
+SoftwareSerial softSerial(SERIAL_RX, SERIAL_TX); // RX, TX
 
 
 void setup() {
   Serial.begin(9600);
+  softSerial.begin(9600);
   myStepper.setSpeed(15);
-  pinMode(7, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(7), limit_switch_activated, CHANGE);
+  pinMode(INTERRUPT_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), limit_switch_activated, CHANGE);
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
@@ -92,17 +107,23 @@ void findPosition(int steps) {
   while (currentPosition != steps) {
     moveStepper(1);
   }
-  digitalWrite(18, LOW);
-  digitalWrite(19, LOW);
-  digitalWrite(20, LOW);
-  digitalWrite(21, LOW);
+  digitalWrite(STEPPER_PIN_1, LOW);
+  digitalWrite(STEPPER_PIN_2, LOW);
+  digitalWrite(STEPPER_PIN_3, LOW);
+  digitalWrite(STEPPER_PIN_4, LOW);
 }
 
 void goToLetter(String letter) {
+  Serial.println("GOING TO FIND: " + letter);
+  bool found = false;
   for (int x = 0; x < sizeof(letters); x++) {
     if (letters[x] == letter) {
-      findPosition(x * 51);
+      found = true;
+      findPosition((x * STEPS_PER_LETTER ) + STEPS_OFFSET);
     }
+  }
+  if(!found){
+    goToLetter(" ");
   }
 }
 
@@ -110,9 +131,16 @@ void loop() {
   if (!IS_CALIBRATED) {
     homeStepper();
   }
-  for (auto c : message) {
-    goToLetter(String(c));
-    delay(1000);
-  };
-  delay(4000);
+  if (softSerial.available() > 0)
+  {
+    char character = softSerial.read(); // Receive a single character from the software serial port
+    serialInput.concat(character); // Add the received character to the receive buffer
+    if (character == '\n')
+    {
+        String target = serialInput.substring(0, 1);
+        String remainder = serialInput.substring(1, serialInput.length());
+        goToLetter(target);
+        serialInput = "";
+    }
+  }
 }
