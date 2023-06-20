@@ -62,8 +62,8 @@ const int STEPS_PER_LETTER = 51;
 const int STEPS_OFFSET = 0;
 
 // Variables
-bool IS_CALIBRATED = false;
 int currentPosition = 3000;
+int targetPosition = 3000;
 String serialInput = "";
 
 // Creates an instance of stepper class
@@ -79,6 +79,8 @@ void setup() {
   pinMode(INTERRUPT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), limit_switch_activated, CHANGE);
   pinMode(LED_BUILTIN, OUTPUT);
+  // Do this so the first thing it tries is going to a home position
+  goToLetter(" ");
 }
 
 void limit_switch_activated() {
@@ -87,30 +89,14 @@ void limit_switch_activated() {
   // If interrupts come faster than 1000ms, assume it's a bounce and ignore
   if (interrupt_time - last_interrupt_time > 1000)
   {
-    Serial.println("INTERRUPT");
-    IS_CALIBRATED = true;
     currentPosition = 0;
   }
   last_interrupt_time = interrupt_time;
 }
 
-void homeStepper() {
-  goToLetter(" ");
-}
-
 void moveStepper(int steps) {
   currentPosition += steps;
   myStepper.step(steps);
-}
-
-void findPosition(int steps) {
-  while (currentPosition != steps) {
-    moveStepper(1);
-  }
-  digitalWrite(STEPPER_PIN_1, LOW);
-  digitalWrite(STEPPER_PIN_2, LOW);
-  digitalWrite(STEPPER_PIN_3, LOW);
-  digitalWrite(STEPPER_PIN_4, LOW);
 }
 
 void goToLetter(String letter) {
@@ -119,28 +105,49 @@ void goToLetter(String letter) {
   for (int x = 0; x < sizeof(letters); x++) {
     if (letters[x] == letter) {
       found = true;
-      findPosition((x * STEPS_PER_LETTER ) + STEPS_OFFSET);
+      targetPosition = (x * STEPS_PER_LETTER ) + STEPS_OFFSET;
     }
   }
-  if(!found){
+  if (!found) {
     goToLetter(" ");
   }
 }
 
+bool isValidLetter(char letter) {
+  bool isValid = false;
+  for(int x = 0; x < sizeof(letters); x++) {
+    if(letters[x] == String(letter)){
+      isValid = true;
+    }
+  }
+  return isValid;
+}
+
 void loop() {
-  if (!IS_CALIBRATED) {
-    homeStepper();
+  if (currentPosition != targetPosition) {
+    moveStepper(1);
+  } else {
+    digitalWrite(STEPPER_PIN_1, LOW);
+    digitalWrite(STEPPER_PIN_2, LOW);
+    digitalWrite(STEPPER_PIN_3, LOW);
+    digitalWrite(STEPPER_PIN_4, LOW);
   }
   if (softSerial.available() > 0)
   {
     char character = softSerial.read(); // Receive a single character from the software serial port
-    serialInput.concat(character); // Add the received character to the receive buffer
-    if (character == '\n')
+    if(isValidLetter(charString)){
+      serialInput.concat(charString); // Add the received character to the receive buffer  
+    }
+    if (character == '\n' && serialInput.length() > 0)
     {
-        String target = serialInput.substring(0, 1);
-        String remainder = serialInput.substring(1, serialInput.length());
-        goToLetter(target);
-        serialInput = "";
+      String target = serialInput.substring(0, 1);
+      String remainder = serialInput.substring(1, serialInput.length());
+      Serial.println(target);
+      Serial.println(remainder);
+      Serial.println("=================");
+      goToLetter(target);
+      softSerial.println(remainder);
+      serialInput = "";
     }
   }
 }

@@ -4,7 +4,14 @@
 const byte rxPin = 22;
 const byte txPin = 23;
 
-const String message = "testing";
+const String messages [] = {
+  "brb",
+  "yes",
+  "no!",
+  " a "
+};
+
+int messageIndex = 0;
 
 SoftwareSerial mySerial (rxPin, txPin); 
 
@@ -14,6 +21,10 @@ void setup() {
 }
 
 void loop() {
-      mySerial.println(message);
-      delay(8000);
+      mySerial.println(messages[messageIndex]);
+      messageIndex++;
+      if(messageIndex > sizeof(messages) - 1){
+        messageIndex = 0;
+      }
+      delay(5000);
 }
