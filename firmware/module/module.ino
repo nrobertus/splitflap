@@ -135,8 +135,8 @@ void loop() {
   if (softSerial.available() > 0)
   {
     char character = softSerial.read(); // Receive a single character from the software serial port
-    if(isValidLetter(charString)){
-      serialInput.concat(charString); // Add the received character to the receive buffer  
+    if(isValidLetter(character)){
+      serialInput.concat(character); // Add the received character to the receive buffer  
     }
     if (character == '\n' && serialInput.length() > 0)
     {

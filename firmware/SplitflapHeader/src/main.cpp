@@ -3,12 +3,41 @@
 
 const byte rxPin = 22;
 const byte txPin = 23;
+/*
 
+  "    ",
+  "some",
+  "body",
+  "once",
+  "told",
+  " me ",
+  "the ",
+  "wrld",
+  " is ",
+  "gnna",
+  "roll",
+  " me "
+  */
 const String messages [] = {
-  "brb",
-  "yes",
-  "no!",
-  " a "
+  "    ",
+  "you ",
+  "know",
+  " i  ",
+  "talk",
+  "too ",
+  "much",
+  "...."
+  "hony",
+  "come",
+  "put ",
+  "your",
+  "lips",
+  " on ",
+  "mine",
+  "and ",
+  "shut",
+  " me ",
+  " up "
 };
 
 int messageIndex = 0;
